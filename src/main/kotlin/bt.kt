@@ -1,4 +1,6 @@
 // Copyright SKNewRoles
+package com.example.guesser
+
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
 import net.fabricmc.api.ModInitializer
@@ -11,21 +13,24 @@ import net.minecraft.scoreboard.Team
 import net.minecraft.server.network.ServerPlayerEntity
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 
+// 必要なインポートを追加
+import java.io.File
+
+// GameManagerの定義をオブジェクト内に修正
+object GameManager {
+    var meeting: Boolean = false
+}
+
 class GuesserPlugins : ModInitializer {
-    // GameManager仮定のシングルトンインスタンス（架空のもの）
-    object GameManager {
-        var meeting: Boolean = false // meetingの状態
-    }
 
     override fun onInitialize() {
         CommandRegistrationCallback.EVENT.register { dispatcher, _, _ ->
-            val btCommand: LiteralArgumentBuilder<ServerCommandSource> = literal("bt")
+            val btCommand = literal("bt")
                 .then(argument("username", StringArgumentType.word())
                     .then(argument("teamname", StringArgumentType.word())
                         .executes { ctx: CommandContext<ServerCommandSource> -> handleBtCommand(ctx) }
                     )
                 )
-
             dispatcher.register(btCommand)
         }
     }
@@ -35,29 +40,33 @@ class GuesserPlugins : ModInitializer {
         val teamName = StringArgumentType.getString(ctx, "teamname")
         val server = ctx.source.server
         val scoreboard = server.scoreboard
-    
-        // 実行者が許可されたチームのいずれかに所属しているか確認
-        val executor = ctx.source.player
-        val allowedTeamNames = listOf("Niceguesser", "Evilguesser")  // 許可されたチーム名のリスト
 
-        //所属チームがNiceguesser または Evilguesserだったら実行 そうじゃ無かったらキャンセル
-        if (executor == null || !allowedTeamNames.contains(scoreboard.getPlayerTeam(executor.entityName)?.name)) {
-            // 実行者が許可されたチームに所属していない場合、エラーメッセージを返す
+        // Fetch the "GameManager" objective (assuming it exists in your scoreboard)
+        val objective = scoreboard.getObjective("GameManager")
+
+        // Get the score for the player with the name "meeting" from the scoreboard
+        val meetingObjective = scoreboard.getObjective("GameManager")
+        val meetingScore = meetingObjective?.let { scoreboard.getPlayerScore("meeting", it)?.score } ?: 0
+        GameManager.meeting = meetingScore != 0
+
+        val executor = ctx.source.entity as? ServerPlayerEntity
+        val allowedTeamNames = listOf("Niceguesser", "Evilguesser")
+
+        // Ensure player is allowed to execute the command
+        val playerTeamName = scoreboard.getPlayerTeam(executor?.entityName)?.name
+        if (executor == null || playerTeamName !in allowedTeamNames) {
             ctx.source.sendFeedback(Text.literal("このコマンドは ${allowedTeamNames.joinToString(", ")} チームのメンバーにしか実行できません。"), false)
             return 0
         }
-    
-        // 指定されたユーザーとチーム名の確認
-        val player: ServerPlayerEntity? = server.playerManager.getPlayer(username)
-        val team: Team? = scoreboard.getTeam(teamName)
-    
+
+        val player = server.playerManager.getPlayer(username)
+        val team = scoreboard.getTeam(teamName)
+
         if (player != null && team != null && team.playerList.contains(player.entityName)) {
-            // 正常条件：対象プレイヤーがそのチームに所属している → kill する
             server.commandManager.dispatcher.execute("kill $username", server.commandSource)
             ctx.source.sendFeedback(Text.literal("プレイヤー $username をキルしました"), false)
             return 1
         } else {
-            // 条件外：実行者自身をkill（またはコンソールならメッセージ）
             return if (executor != null) {
                 executor.kill()
                 ctx.source.sendFeedback(Text.literal("条件不一致のため自分をキルしました"), false)
@@ -67,5 +76,25 @@ class GuesserPlugins : ModInitializer {
                 0
             }
         }
+    }
+
+    private fun logBtCommand(ctx: CommandContext<ServerCommandSource>, teamName: String, result: String) {
+        val timestamp = System.currentTimeMillis()
+        val playerName = ctx.source.entity?.name ?: "unknown"  // Safely handle null entity
+
+        val logEntry = """
+            {
+                "time": $timestamp,
+                "player": "$playerName",
+                "command": "bt",
+                "team": "$teamName",
+                "meeting": ${GameManager.meeting},
+                "result": "$result"
+            }
+        """.trimIndent()
+    
+        val logFile = File("analytics/bt_logs.json")
+        logFile.parentFile.mkdirs()
+        logFile.appendText(logEntry + ",\n")
     }
 }
