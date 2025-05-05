@@ -5,3 +5,6 @@
 #### そのプレイヤーをキル 違っていたら自爆
 #### 実行権限 会議中 & team=Niceguesser team=Eviluesser のみ
 #### これのどっちかにも当てはまらなかったら実行権限が無いよ
+#### 注意　fabricで作られています
+#### このMod PluginはSKNewRolesに組み込む前提です
+#### SKNewRolesを持っていない方は<a href="https://sakitibi.github.io/12nin.com/SKNewRoles">ここ</a>からダウンロードして下さい
