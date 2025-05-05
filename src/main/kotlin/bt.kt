@@ -1,3 +1,4 @@
+// Copyright SKNewRoles
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
 import net.fabricmc.api.ModInitializer
@@ -38,7 +39,8 @@ class GuesserPlugins : ModInitializer {
         // 実行者が許可されたチームのいずれかに所属しているか確認
         val executor = ctx.source.player
         val allowedTeamNames = listOf("Niceguesser", "Evilguesser")  // 許可されたチーム名のリスト
-    
+
+        //所属チームがNiceguesser または Evilguesserだったら実行 そうじゃ無かったらキャンセル
         if (executor == null || !allowedTeamNames.contains(scoreboard.getPlayerTeam(executor.entityName)?.name)) {
             // 実行者が許可されたチームに所属していない場合、エラーメッセージを返す
             ctx.source.sendFeedback(Text.literal("このコマンドは ${allowedTeamNames.joinToString(", ")} チームのメンバーにしか実行できません。"), false)
