@@ -3,7 +3,7 @@
 #### 説明
 #### 特定のプレイヤーが所属して居るチーム名が合っていたら
 #### そのプレイヤーをキル 違っていたら自爆
-#### 実行権限 会議中 & team=Niceguesser team=Eviluesser のみ
+#### 実行権限 会議中 & team=Niceguesser team=Evilguesser のみ
 #### これのどっちかにも当てはまらなかったら実行権限が無いよ
 #### 注意　fabricで作られています
 #### このMod PluginはSKNewRolesに組み込む前提です
