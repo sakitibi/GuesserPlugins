@@ -1,11 +1,11 @@
 {
     "schemaVersion": 1,
     "id": "guesserplugins",
-    "version": "2.6.0.0",
+    "version": "2.9.9.9",
     "name": "Guesser Plugins",
-    "description": "Example mod.",
-    "authors": ["Your Name"],
-    "license": "MIT",
+    "description": "GuesserPlugins",
+    "authors": ["Sakitibi"],
+    "license": "Copyright SKNewRoles",
     "environment": "*",
     "entrypoints": {
         "main": ["guesser.plugins"],
