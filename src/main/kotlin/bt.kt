@@ -41,10 +41,8 @@ class GuesserPlugins : ModInitializer {
         val server = ctx.source.server
         val scoreboard = server.scoreboard
 
-        // Fetch the "GameManager" objective (assuming it exists in your scoreboard)
         val objective = scoreboard.getObjective("GameManager")
 
-        // Get the score for the player with the name "meeting" from the scoreboard
         val meetingObjective = scoreboard.getObjective("GameManager")
         val meetingScore = meetingObjective?.let { scoreboard.getPlayerScore("meeting", it)?.score } ?: 0
         GameManager.meeting = meetingScore != 0
@@ -52,7 +50,6 @@ class GuesserPlugins : ModInitializer {
         val executor = ctx.source.entity as? ServerPlayerEntity
         val allowedTeamNames = listOf("Niceguesser", "Evilguesser")
 
-        // Ensure player is allowed to execute the command
         val playerTeamName = scoreboard.getPlayerTeam(executor?.entityName)?.name
         if (executor == null || playerTeamName !in allowedTeamNames) {
             ctx.source.sendFeedback(Text.literal("このコマンドは ${allowedTeamNames.joinToString(", ")} チームのメンバーにしか実行できません。"), false)
