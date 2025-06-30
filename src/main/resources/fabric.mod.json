@@ -1,0 +1,21 @@
+{
+    "schemaVersion": 1,
+    "id": "guesserplugins",
+    "version": "2.9.9.9",
+    "name": "Guesser Plugins",
+    "description": "GuesserPlugins",
+    "authors": ["Sakitibi"],
+    "license": "Copyright SKNewRoles",
+    "environment": "*",
+    "entrypoints": {
+        "main": ["guesser.plugins"],
+        "client": [
+            "org.example.GuesserPlugins"
+        ]
+    },
+    "depends": {
+        "fabricloader": ">=0.14.21",
+        "fabric": "*",
+        "minecraft": "1.19.4"
+    }
+}
