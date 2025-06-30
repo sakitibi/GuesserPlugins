@@ -7,4 +7,4 @@
 #### これのどっちかにも当てはまらなかったら実行権限が無いよ
 #### 注意　fabricで作られています
 #### このMod PluginはSKNewRolesに組み込む前提です
-#### SKNewRolesを持っていない方は<a href="https://sakitibi.github.io/12nin.com/SKNewRoles">ここ</a>からダウンロードして下さい
+#### SKNewRolesを持っていない方は<a href="https://sakitibi.github.io/13nin.com/SKNewRoles">ここ</a>からダウンロードして下さい
