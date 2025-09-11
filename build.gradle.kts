@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "guesser.plugins"
-version = "3.0.0.2"
+version = "3.0.0.3"
 
 repositories {
     maven {
@@ -20,7 +20,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
 
     // ✅ Fabric API はこの1行で十分
-    modImplementation("net.fabricmc.fabric-api:fabric-api:0.76.0+1.19.4")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:0.87.2+1.19.4")
 }
 
 kotlin {
