@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "guesser.plugins"
-version = "3.0.0.3"
+version = "3.1.0.0"
 
 repositories {
     maven {
