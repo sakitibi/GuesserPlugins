@@ -61,15 +61,15 @@ class GuesserPlugins : ModInitializer {
 
         if (player != null && team != null && team.playerList.contains(player.entityName)) {
             server.commandManager.dispatcher.execute("kill $username", server.commandSource)
-            ctx.source.sendFeedback(Text.literal("プレイヤー $username をキルしました"), false)
+            ctx.source.sendFeedback(Text.literal("ターゲットプレイヤー $username をゲス成功しました!"), false)
             return 1
         } else {
             return if (executor != null) {
                 executor.kill()
-                ctx.source.sendFeedback(Text.literal("条件不一致のため自分をキルしました"), false)
+                ctx.source.sendFeedback(Text.literal("ターゲットプレイヤーの役職が違う為、\n自分をキルしました.."), false)
                 1
             } else {
-                ctx.source.sendFeedback(Text.literal("対象プレイヤーが見つからない、またはチームに所属していません"), false)
+                ctx.source.sendFeedback(Text.literal("対象プレイヤーが見つからない、またはチームに所属していません\n引数はREADME.htmlをご覧下さい"), false)
                 0
             }
         }
