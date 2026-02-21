@@ -1,3 +1,5 @@
+// Copyright 2025 SKNewRoles
+// src/main/kotlin/com/sknewroles/GuesserPlugins.kt
 package com.sknewroles
 
 import com.mojang.brigadier.arguments.StringArgumentType
@@ -18,6 +20,7 @@ object GameManager {
 class GuesserPlugins : ModInitializer {
 
     override fun onInitialize() {
+        // コマンド登録
         CommandRegistrationCallback.EVENT.register { dispatcher, _, _ ->
             val btCommand = literal("bt")
                 .then(argument("username", StringArgumentType.word())
@@ -32,7 +35,6 @@ class GuesserPlugins : ModInitializer {
     private fun handleBtCommand(ctx: CommandContext<ServerCommandSource>): Int {
         val username = StringArgumentType.getString(ctx, "username")
         val teamName = StringArgumentType.getString(ctx, "teamname")
-
         val server = ctx.source.server
         val scoreboard = server.scoreboard
 
@@ -58,13 +60,13 @@ class GuesserPlugins : ModInitializer {
 
         return if (targetPlayer != null && targetTeam != null && targetTeam.playerList.contains(targetPlayer.entityName)) {
             // ターゲットキル成功
-            server.commandManager.dispatcher.execute("kill $username", ctx.source)
+            targetPlayer.kill() // 安全に死亡処理
             ctx.source.sendFeedback(Text.literal("ターゲットプレイヤー $username を推測成功しました!"), false)
             logBtCommand(ctx, teamName, "success")
             1
         } else {
-            // 自殺処理（DamageSource を使わずコマンドで自分をキル）
-            server.commandManager.dispatcher.execute("kill ${executor.entityName}", ctx.source)
+            // 自殺処理
+            executor.kill() // 安全に死亡処理
             ctx.source.sendFeedback(Text.literal("ターゲットプレイヤーの役職が違う為、自分をキルしました.."), false)
             logBtCommand(ctx, teamName, "fail")
             1
