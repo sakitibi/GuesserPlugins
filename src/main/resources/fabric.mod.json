@@ -8,7 +8,7 @@
     "license": "Copyright SKNewRoles",
     "environment": "*",
     "entrypoints": {
-        "main": ["guesser.plugins"],
+        "main": ["com.sknewroles.GuesserPlugins"],
         "client": [
             "com.sknewroles.GuesserPlugins"
         ]
