@@ -1,4 +1,4 @@
-// Copyright SKNewRoles
+// Copyright 2025 SKNewRoles
 package com.sknewroles
 
 import com.mojang.brigadier.arguments.StringArgumentType
@@ -8,15 +8,11 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.minecraft.server.command.CommandManager.argument
 import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.text.Text
-import net.minecraft.scoreboard.Team
 import net.minecraft.server.network.ServerPlayerEntity
-import com.mojang.brigadier.builder.LiteralArgumentBuilder
-
-// 必要なインポートを追加
+import net.minecraft.text.Text
+import net.minecraft.entity.damage.DamageSource
 import java.io.File
 
-// GameManagerの定義をオブジェクト内に修正
 object GameManager {
     var meeting: Boolean = false
 }
@@ -28,7 +24,7 @@ class GuesserPlugins : ModInitializer {
             val btCommand = literal("bt")
                 .then(argument("username", StringArgumentType.word())
                     .then(argument("teamname", StringArgumentType.word())
-                        .executes { ctx: CommandContext<ServerCommandSource> -> handleBtCommand(ctx) }
+                        .executes { ctx -> handleBtCommand(ctx) }
                     )
                 )
             dispatcher.register(btCommand)
@@ -46,10 +42,13 @@ class GuesserPlugins : ModInitializer {
 
         val executor = ctx.source.entity as? ServerPlayerEntity
         val allowedTeamNames = listOf("Niceguesser", "Evilguesser")
+        val playerTeamName = executor?.let { scoreboard.getPlayerTeam(it.entityName)?.name }
 
-        val playerTeamName = scoreboard.getPlayerTeam(executor?.entityName)?.name
-        if (executor == null || playerTeamName !in allowedTeamNames) {
-            ctx.source.sendFeedback(Text.literal("このコマンドは ${allowedTeamNames.joinToString(", ")} チームのメンバーにしか実行できません。"), false)
+        if (executor == null || playerTeamName == null || playerTeamName !in allowedTeamNames) {
+            ctx.source.sendFeedback(
+                Text.literal("このコマンドは ${allowedTeamNames.joinToString(", ")} チームのメンバーにしか実行できません。"),
+                false
+            )
             return 0
         }
 
@@ -57,20 +56,23 @@ class GuesserPlugins : ModInitializer {
         val team = scoreboard.getTeam(teamName)
 
         if (player != null && team != null && team.playerList.contains(player.entityName)) {
-            server.commandManager.dispatcher.execute("kill $username", server.commandSource)
+            // ターゲットキル（Fabric 1.19.4 の execute 使用）
+            server.commandManager.execute("kill $username", server.commandSource)
             ctx.source.sendFeedback(Text.literal("ターゲットプレイヤー $username を推測成功しました!"), false)
+            logBtCommand(ctx, teamName, "success")
             return 1
         } else {
-            executor.kill()
-            ctx.source.sendFeedback(Text.literal("ターゲットプレイヤーの役職が違う為、\n自分をキルしました.."), false)
+            // 自殺（nullable safe）
+            executor?.damage(DamageSource.generic, executor.health)
+            ctx.source.sendFeedback(Text.literal("ターゲットプレイヤーの役職が違う為、自分をキルしました.."), false)
+            logBtCommand(ctx, teamName, "fail")
             return 1
         }
     }
 
     private fun logBtCommand(ctx: CommandContext<ServerCommandSource>, teamName: String, result: String) {
         val timestamp = System.currentTimeMillis()
-        val playerName = ctx.source.entity?.name ?: "unknown"  // Safely handle null entity
-
+        val playerName = ctx.source.entity?.name ?: "unknown"
         val logEntry = """
             {
                 "time": $timestamp,
@@ -81,8 +83,8 @@ class GuesserPlugins : ModInitializer {
                 "result": "$result"
             }
         """.trimIndent()
-    
-        val logFile = File("analytics/bt_logs.json")
+
+        val logFile = File(ctx.source.server.runDirectory, "analytics/bt_logs.json")
         logFile.parentFile.mkdirs()
         logFile.appendText(logEntry + ",\n")
     }
