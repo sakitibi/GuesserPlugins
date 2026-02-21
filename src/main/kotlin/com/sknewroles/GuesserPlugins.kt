@@ -1,4 +1,3 @@
-// Copyright 2025 SKNewRoles
 package com.sknewroles
 
 import com.mojang.brigadier.arguments.StringArgumentType
@@ -10,7 +9,6 @@ import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
-import net.minecraft.entity.damage.DamageSource
 import java.io.File
 
 object GameManager {
@@ -34,39 +32,42 @@ class GuesserPlugins : ModInitializer {
     private fun handleBtCommand(ctx: CommandContext<ServerCommandSource>): Int {
         val username = StringArgumentType.getString(ctx, "username")
         val teamName = StringArgumentType.getString(ctx, "teamname")
+
         val server = ctx.source.server
         val scoreboard = server.scoreboard
+
+        // ミーティング状態確認
         val meetingObjective = scoreboard.getObjective("GameManager")
         val meetingScore = meetingObjective?.let { scoreboard.getPlayerScore("meeting", it)?.score } ?: 0
         GameManager.meeting = meetingScore != 0
 
         val executor = ctx.source.entity as? ServerPlayerEntity
-        val allowedTeamNames = listOf("Niceguesser", "Evilguesser")
-        val playerTeamName = executor?.let { scoreboard.getPlayerTeam(it.entityName)?.name }
+        val allowedTeams = listOf("Niceguesser", "Evilguesser")
+        val executorTeam = executor?.let { scoreboard.getPlayerTeam(it.entityName)?.name }
 
-        if (executor == null || playerTeamName == null || playerTeamName !in allowedTeamNames) {
+        if (executor == null || executorTeam == null || executorTeam !in allowedTeams) {
             ctx.source.sendFeedback(
-                Text.literal("このコマンドは ${allowedTeamNames.joinToString(", ")} チームのメンバーにしか実行できません。"),
+                Text.literal("このコマンドは ${allowedTeams.joinToString(", ")} チームのメンバーにしか実行できません。"),
                 false
             )
             return 0
         }
 
-        val player = server.playerManager.getPlayer(username)
-        val team = scoreboard.getTeam(teamName)
+        val targetPlayer = server.playerManager.getPlayer(username)
+        val targetTeam = scoreboard.getTeam(teamName)
 
-        if (player != null && team != null && team.playerList.contains(player.entityName)) {
-            // ターゲットキル
-            server.commandManager.dispatcher.execute("kill $username", server.commandSource)
+        return if (targetPlayer != null && targetTeam != null && targetTeam.playerList.contains(targetPlayer.entityName)) {
+            // ターゲットキル成功
+            server.commandManager.dispatcher.execute("kill $username", ctx.source)
             ctx.source.sendFeedback(Text.literal("ターゲットプレイヤー $username を推測成功しました!"), false)
             logBtCommand(ctx, teamName, "success")
-            return 1
+            1
         } else {
-            // 自殺
-            executor?.damage(DamageSource.GENERIC, executor.health)
+            // 自殺処理（DamageSource を使わずコマンドで自分をキル）
+            server.commandManager.dispatcher.execute("kill ${executor.entityName}", ctx.source)
             ctx.source.sendFeedback(Text.literal("ターゲットプレイヤーの役職が違う為、自分をキルしました.."), false)
             logBtCommand(ctx, teamName, "fail")
-            return 1
+            1
         }
     }
 
