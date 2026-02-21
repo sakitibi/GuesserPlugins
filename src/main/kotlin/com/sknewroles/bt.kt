@@ -1,5 +1,5 @@
 // Copyright SKNewRoles
-package com.example.guesser
+package com.sknewroles
 
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
