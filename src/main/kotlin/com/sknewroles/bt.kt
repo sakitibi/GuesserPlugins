@@ -40,9 +40,6 @@ class GuesserPlugins : ModInitializer {
         val teamName = StringArgumentType.getString(ctx, "teamname")
         val server = ctx.source.server
         val scoreboard = server.scoreboard
-
-        val objective = scoreboard.getObjective("GameManager")
-
         val meetingObjective = scoreboard.getObjective("GameManager")
         val meetingScore = meetingObjective?.let { scoreboard.getPlayerScore("meeting", it)?.score } ?: 0
         GameManager.meeting = meetingScore != 0
@@ -61,17 +58,12 @@ class GuesserPlugins : ModInitializer {
 
         if (player != null && team != null && team.playerList.contains(player.entityName)) {
             server.commandManager.dispatcher.execute("kill $username", server.commandSource)
-            ctx.source.sendFeedback(Text.literal("ターゲットプレイヤー $username をゲス成功しました!"), false)
+            ctx.source.sendFeedback(Text.literal("ターゲットプレイヤー $username を推測成功しました!"), false)
             return 1
         } else {
-            return if (executor != null) {
-                executor.kill()
-                ctx.source.sendFeedback(Text.literal("ターゲットプレイヤーの役職が違う為、\n自分をキルしました.."), false)
-                1
-            } else {
-                ctx.source.sendFeedback(Text.literal("対象プレイヤーが見つからない、またはチームに所属していません\n引数はREADME.htmlをご覧下さい"), false)
-                0
-            }
+            executor.kill()
+            ctx.source.sendFeedback(Text.literal("ターゲットプレイヤーの役職が違う為、\n自分をキルしました.."), false)
+            return 1
         }
     }
 

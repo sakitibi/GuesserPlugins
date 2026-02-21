@@ -2,7 +2,7 @@
     "schemaVersion": 1,
     "id": "guesserplugins",
     "version": "3.2.0.2",
-    "name": "Guesser Plugins",
+    "name": "GuesserPlugins",
     "description": "GuesserPlugins",
     "authors": ["Sakitibi"],
     "license": "Copyright SKNewRoles",
@@ -10,7 +10,7 @@
     "entrypoints": {
         "main": ["guesser.plugins"],
         "client": [
-            "org.example.GuesserPlugins"
+            "com.sknewroles.GuesserPlugins"
         ]
     },
     "depends": {
