@@ -56,14 +56,14 @@ class GuesserPlugins : ModInitializer {
         val team = scoreboard.getTeam(teamName)
 
         if (player != null && team != null && team.playerList.contains(player.entityName)) {
-            // ターゲットキル（Fabric 1.19.4 の execute 使用）
-            server.commandManager.execute("kill $username", server.commandSource)
+            // ターゲットキル
+            server.commandManager.dispatcher.execute("kill $username", server.commandSource)
             ctx.source.sendFeedback(Text.literal("ターゲットプレイヤー $username を推測成功しました!"), false)
             logBtCommand(ctx, teamName, "success")
             return 1
         } else {
-            // 自殺（nullable safe）
-            executor?.damage(DamageSource.generic, executor.health)
+            // 自殺
+            executor?.damage(DamageSource.GENERIC, executor.health)
             ctx.source.sendFeedback(Text.literal("ターゲットプレイヤーの役職が違う為、自分をキルしました.."), false)
             logBtCommand(ctx, teamName, "fail")
             return 1
