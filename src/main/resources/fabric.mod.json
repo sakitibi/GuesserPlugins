@@ -8,8 +8,12 @@
     "license": "Copyright SKNewRoles",
     "environment": "*",
     "entrypoints": {
-        "main": ["com.sknewroles.GuesserPlugins"],
-        "client": ["com.sknewroles.GuesserPlugins"]
+        "main": [
+            {
+                "adapter": "kotlin",
+                "value": "com.sknewroles.GuesserPlugins"
+            }
+        ]
     },
     "depends": {
         "fabricloader": ">=0.14.21",

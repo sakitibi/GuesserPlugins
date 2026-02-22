@@ -21,17 +21,13 @@ object GameManager {
 @Suppress("DEPRECATION")
 class GuesserPlugins : ModInitializer {
     override fun onInitialize() {
-        CommandRegistrationCallback.EVENT.register { dispatcher: CommandDispatcher<ServerCommandSource>, _ ->
+        // パラメーターを3つ (_, _, _) から 2つ (dispatcher, dedicated) に修正
+        CommandRegistrationCallback.EVENT.register { dispatcher, _ ->
             dispatcher.register(
                 literal("bt").then(
                     argument("username", StringArgumentType.word())
                         .then(argument("teamname", StringArgumentType.word())
-                            .executes { ctx ->
-                                val username = StringArgumentType.getString(ctx, "username")
-                                val teamname = StringArgumentType.getString(ctx, "teamname")
-                                ctx.source.sendFeedback(Text.literal("Player: $username, Team: $teamname"), false)
-                                1
-                            }
+                            .executes { ctx -> handleBtCommand(ctx) }
                         )
                 )
             )
